@@ -1,5 +1,6 @@
 import {contactAPI as api} from "./lib/contactAPI.js";
 import * as eventHandlers from './lib/eventHandlers.js';
+
 document.addEventListener("contactsLoaded", eventHandlers.getContactsDOM);
 document.addEventListener("contactDeleted", eventHandlers.delContactsDOM);
 document.addEventListener("contactUpdated", eventHandlers.updateContactDOM);
@@ -12,4 +13,5 @@ _ui.loaded(() => {
   _ui.click({class: "openDelModal"}, eventHandlers.updateDel);
   _ui.click({class: "closeModal"}, eventHandlers.close);
   _ui.click({class: "onsubmit"}, eventHandlers.onSubmit);
+  _ui.get({id: 'filterTags'}).addEventListener("tagsUpdated", eventHandlers.updateTagsDOM);
 });

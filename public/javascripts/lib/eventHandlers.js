@@ -8,12 +8,27 @@ export const logger = function logger(event) {
   console.log(event);
 };
 
+// TAGS
+export const updateTagsDOM = function updateTagsDOMCallback(event) {
+  console.log(event);
+  event.target.replaceChildren(event.detail.tags());
+};
+
+// CONTACT HANDLING
+export const loadContacts = function loadAllContacts(event) {
+  if (api.method() === "get") {
+    let allContacts = event.target.response;
+
+    allContacts.forEach(contact => domCache.pushContact(contact));
+
+    document.dispatchEvent(contactsLoaded);
+  }
+};
+
 export const getContactsDOM = function getContactsDOMCallback(event) {
-  let contactRows = event.detail.contacts(),
-      tags = event.detail.tags();
+  let contactRows = event.detail.contacts();
 
   _ui.get({id: 'cardContainer'}).appendChild(contactRows);
-  _ui.get({id: 'filterTags'}).appendChild(tags);
 };
 
 export const updateContactDOM = function updateContactDOMCallback(event) {
@@ -52,6 +67,7 @@ export const delContactsDOM = function delContactsDOMCallback(event) {
   close(null, "delContactModal");
 }
 
+// FORM HANDLING
 export const onSubmit = function onSubmittingForm(event) {
   event.preventDefault();
 
@@ -66,17 +82,6 @@ export const onSubmit = function onSubmittingForm(event) {
     api.addContact(contactFormData);
   } else {
     api.delContact(contactId);
-  }
-};
-
-export const updateForm = function updateManageForm(event) {
-  if (event.target.value) {
-    let formInputs = _ui.get({class: "mgContact"}),
-        contactInfo = ContactData.marshal(event.target.parentElement);
-
-    formInputs.forEach((input, idx) => {
-      input.value = Object.values(contactInfo)[idx];
-    });
   }
 };
 
@@ -95,16 +100,18 @@ export const updateDel = function updateDelModal(event) {
   formInput.value = ContactData.id(contact);
 };
 
-export const loadContacts = function loadAllContacts(event) {
-  if (api.method() === "get") {
-    let allContacts = event.target.response;
+export const updateForm = function updateManageForm(event) {
+  if (event.target.value) {
+    let formInputs = _ui.get({class: "mgContact"}),
+        contactInfo = ContactData.marshal(event.target.parentElement);
 
-    allContacts.forEach(contact => domCache.pushContact(contact));
-
-    document.dispatchEvent(contactsLoaded);
+    formInputs.forEach((input, idx) => {
+      input.value = Object.values(contactInfo)[idx];
+    });
   }
 };
 
+// MODALS
 export const open = function openModal(event) {
   let id = event.target.dataset.modal,
       backdrop = _ui.get({class: "modal-backdrop"})[0],

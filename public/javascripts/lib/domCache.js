@@ -1,6 +1,7 @@
 import { ContactData } from './contactData.js';
 import { partition } from './helpers.js';
 import { tagBp, contactBp, contactRowBp } from '../blueprints/bundle.js';
+import { tagsUpdated } from './events.js';
 
 export let domCache;
 
@@ -49,9 +50,9 @@ export let domCache;
     };
 
     const indexOf = function indexOfCache(which, elem, id=null) {
-      let contactId = id ? id : ContactData.id(elem);
-
       if (which === "contacts") {
+        let contactId = id ? id : ContactData.id(elem);
+
         return contacts.map(ct => ContactData.id(ct)).indexOf(String(contactId));
       } else {
         return allTags.map(tag => tag.innerText).indexOf(elem.innerText);
@@ -94,6 +95,38 @@ export let domCache;
       setContactTags(tags, tagsContainer);
       
       return contactCard.firstElementChild;
+    };
+
+    const tagCount = function totalTagCount(tagVal) {
+      let allContactTags = contacts.flatMap(ct => ContactData.tags(ct)),
+          count = 0;
+
+      return allContactTags.reduce((totalCount, currentTag) => {
+        if (currentTag === tagVal) {
+          return totalCount + 1;
+        } else {
+          return totalCount;
+        }
+      }, count);
+    };
+
+
+    const updateTags = function updateTagsContainer(thisArg) {
+      let removedTags = [];
+
+      allTags.map(tagSpan => tagSpan.innerText)
+             .map(tagText => tagCount(tagText))
+             .forEach((count, idx) => {
+               console.log(count, idx, allTags[idx]);
+                if (count === 0) {
+                  removedTags.push(allTags[idx]);
+                }
+             });
+
+      if (removedTags.length) {
+        removedTags.forEach(tag => thisArg.removeTag(tag));
+        _ui.get({id: 'filterTags'}).dispatchEvent(tagsUpdated);
+      }
     };
 
     return {
@@ -144,6 +177,8 @@ export let domCache;
           let tagContainer = contacts[contactIdx].querySelector('.tags');
 
           setContactTags(tags, tagContainer);
+
+          updateTags(this);
         }
       },
 
@@ -151,23 +186,27 @@ export let domCache;
         let contactIdx = indexOf("contacts", null, contactId);
 
         if (contactIdx !== -1) {
-          return contacts.splice(contactIdx, 1)[0];
+          let spliced = contacts.splice(contactIdx, 1)[0];
+          updateTags(this);
+          return spliced;
         }
       },
 
       pushTag(tag) {
         if (!includes("tags", tag)) {
           allTags.push(tag);
+          _ui.get({id: 'filterTags'}).dispatchEvent(tagsUpdated);
         }
 
         return allTags.length;
       },
 
       removeTag(tag) {
+        console.log(tag);
         let tagIdx = indexOf("tags", tag);
 
         if (tagIdx !== -1) {
-          allTags.splice(tagIdx, 1);
+          return allTags.splice(tagIdx, 1);
         }
       },
 

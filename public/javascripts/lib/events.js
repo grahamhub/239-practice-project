@@ -25,3 +25,9 @@ export const contactDeleted = new CustomEvent("contactDeleted", {
     success: false,
   }
 });
+
+export const tagsUpdated = new CustomEvent("tagsUpdated", {
+  detail: {
+    tags: domCache.tags,
+  }
+});
