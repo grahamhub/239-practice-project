@@ -4,11 +4,133 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
-  <script src="/javascripts/jquery.js"></script>
-  <script src="/javascripts/handlebars.js"></script>
+  <title>Contact Manager | JS239</title>
+  <!-- Dependencies -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="./stylesheets/main.css">
+  <script src='https://cdn.jsdelivr.net/gh/grahamhub/minui@0.0.9.1/dist/core.min.js'></script>
 </head>
 <body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+    <div class="container">
+      <div class="row" style="width: inherit;">
+        <div class="col-4"></div>
+        <div class="col-4">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search Contacts">
+          </div>
+        </div>
+        <div class="col-4"></div>
+      </div>
+    </div>
+  </nav>
 
+  <main>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <h3 class="mt-5">Welcome!</h3>
+          <p class="lead">This project uses Bootstrap and <a href="https://minui.dev" target="_blank">minUI.</a></p>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+          <div class="jumbotron">
+            <div id="alertBox"></div>
+            <h4>All Contacts</h4>
+            <button class="btn btn-primary openModal" data-modal="addContactModal">Add Contact</button>
+            <p>Filter by tag:</p>
+            <div id="filterTags"></div>
+            <hr class="my-4">
+            <div class="container" id="cardContainer"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Backdrop -->
+  <div class="modal-backdrop fade show" style="display: none;"></div>
+
+  <!-- Add Contact Modal -->
+  <div class="modal fade" id="addContactModal" tabindex="-1" role="dialog" aria-labelledby="addContactModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addContactTitle">Add New Contact</h5>
+          <button type="button" class="close closeModal" data-modal="addContactModal" aria-label="Close">
+            <span class="closeModal" data-modal="addContactModal" aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="addContactForm">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" class="form-control" name="full_name" placeholder="Enter name">
+            </div>
+            <div class="form-group">
+              <label>Email address</label>
+              <input type="email" class="form-control" name="email" placeholder="Enter email">
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" class="form-control" name="phone_number" placeholder="Enter phone number">
+            </div>
+            <div class="form-group">
+              <label>Add tags:</label>
+              <textarea class="form-control" name="tags" aria-describedby="tagHelp" rows="3"></textarea>
+              <small id="tagHelp" class="form-text text-muted">Type a word in the box above to add a tag (pressing the space, comma, or enter keys will confirm the tag).</small>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary closeModal" data-modal="addContactModal">Close</button>
+          <button type="button" class="btn btn-primary onsubmit" data-modal="addContactModal" value="addContactForm">Create contact</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manage Contact Modal -->
+  <div class="modal fade" id="manageContactModal" tabindex="-1" role="dialog" aria-labelledby="manageContactModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="manageContactTitle">Manage Contact</h5>
+          <button type="button" class="close closeModal" data-modal="manageContactModal" aria-label="Close">
+            <span class="closeModal" data-modal="manageContactModal" aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="editContactForm">
+            <input type="hidden" class="mgContact" name="id">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" class="form-control mgContact" name="full_name" placeholder="Enter name">
+            </div>
+            <div class="form-group">
+              <label>Email address</label>
+              <input type="email" class="form-control mgContact" name="email" placeholder="Enter email">
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" class="form-control mgContact" name="phone_number" placeholder="Enter phone number">
+            </div>
+            <div class="form-group">
+              <label>Add tags:</label>
+              <textarea class="form-control mgContact" name="tags" aria-describedby="mgTagHelp" rows="3"></textarea>
+              <small id="mgTagHelp" class="form-text text-muted">Type a word in the box above to add a tag (pressing the space, comma, or enter keys will confirm the tag).</small>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary closeModal" data-modal="manageContactModal">Close</button>
+          <button type="button" class="btn btn-primary onsubmit" data-modal="manageContactModal" value="editContactForm">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./javascripts/app.js"></script>
 </body>
 </html>
