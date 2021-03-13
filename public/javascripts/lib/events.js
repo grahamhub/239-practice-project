@@ -18,3 +18,10 @@ export const contactAdded = new CustomEvent("contactAdded", {
     contact: null,
   }
 });
+
+export const contactDeleted = new CustomEvent("contactDeleted", {
+  detail: {
+    contact: null,
+    success: false,
+  }
+});

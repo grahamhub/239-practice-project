@@ -146,11 +146,11 @@ export let domCache;
         }
       },
 
-      removeContact(contact) {
-        let contactIdx = indexOf("contacts", contact);
+      removeContact(contactId) {
+        let contactIdx = indexOf("contacts", null, contactId);
 
         if (contactIdx !== -1) {
-          contacts.splice(contactIdx, 1);
+          return contacts.splice(contactIdx, 1)[0];
         }
       },
 

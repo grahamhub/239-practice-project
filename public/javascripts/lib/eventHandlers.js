@@ -1,4 +1,4 @@
-import { contactsLoaded, contactUpdated, contactAdded } from './events.js';
+import { contactsLoaded, contactUpdated, contactAdded, contactDeleted } from './events.js';
 import { ContactData } from './contactData.js';
 import { domCache } from './domCache.js';
 import { contactAPI as api } from "./contactAPI.js";
@@ -23,20 +23,37 @@ const addContact = function addContactCallback(event) {
   document.dispatchEvent(contactAdded);
 };
 
+const delContact = function delContactCallback(event) {
+  let status = event.target.status,
+      contactId = event.target.responseURL.split('/').pop();
+
+  console.log(event);
+
+  if (status === 204) {
+    contactDeleted.detail.success = true;
+    contactDeleted.detail.contact = domCache.removeContact(contactId);
+  } else {
+    contactDeleted.detail.success = false;
+  }
+
+  document.dispatchEvent(contactDeleted);
+};
+
 export const onSubmit = function onSubmittingForm(event) {
   event.preventDefault();
 
   let formId = event.target.value,
       form = _ui.get({id: formId}),
-      contactId = form.firstElementChild.value,
-      contactFormData = new FormData(form);
+      contactId = form ? form.firstElementChild.value : formId,
+      contactFormData = form ? new FormData(form) : null;
 
   if (formId.includes("edit")) {
     api.editContact(contactId, contactFormData, updateContact);
   } else if (formId.includes("add")) {
     api.addContact(contactFormData, addContact);
-  // } else {
-  //   api.delContact(contactId, logger);
+  } else {
+    console.log(contactId);
+    api.delContact(contactId, delContact);
   }
 };
 
@@ -48,6 +65,8 @@ export const updateForm = function updateManageForm(event) {
     formInputs.forEach((input, idx) => {
       input.value = Object.values(contactInfo)[idx];
     });
+
+    _ui.get({class: "onsubmit"})[1].value = event.target.value;
   }
 };
 

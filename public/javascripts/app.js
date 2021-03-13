@@ -42,8 +42,16 @@ document.addEventListener("contactAdded", (event) => {
   container.appendChild(contactCard);
 
   _ui.get({id: 'addContactForm'}).reset();
-  
+
   close(null, "addContactModal");
+});
+
+document.addEventListener("contactDeleted", (event) => {
+  let contact = event.detail.contact;
+
+  _ui.get({childrenOf: {id: 'cardContainer'}}).pop().removeChild(contact);
+  
+  close(null, "manageContactModal");
 });
 
 _ui.loaded(() => {
