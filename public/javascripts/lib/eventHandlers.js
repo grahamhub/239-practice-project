@@ -1,4 +1,4 @@
-import { contactsLoaded, contactUpdated } from './events.js';
+import { contactsLoaded, contactUpdated, contactAdded } from './events.js';
 import { ContactData } from './contactData.js';
 import { domCache } from './domCache.js';
 import { contactAPI as api } from "./contactAPI.js";
@@ -15,6 +15,14 @@ const updateContact = function updateContactCallback(event) {
   document.dispatchEvent(contactUpdated);
 };
 
+const addContact = function addContactCallback(event) {
+  let contact = event.target.response;
+
+  contactAdded.detail.contact = contact;
+
+  document.dispatchEvent(contactAdded);
+};
+
 export const onSubmit = function onSubmittingForm(event) {
   event.preventDefault();
 
@@ -26,7 +34,7 @@ export const onSubmit = function onSubmittingForm(event) {
   if (formId.includes("edit")) {
     api.editContact(contactId, contactFormData, updateContact);
   } else if (formId.includes("add")) {
-    api.addContact(contactFormData, logger);
+    api.addContact(contactFormData, addContact);
   // } else {
   //   api.delContact(contactId, logger);
   }

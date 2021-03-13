@@ -12,3 +12,9 @@ export const contactUpdated = new CustomEvent("contactUpdated", {
     contact: null,
   }
 });
+
+export const contactAdded = new CustomEvent("contactAdded", {
+  detail: {
+    contact: null,
+  }
+});
