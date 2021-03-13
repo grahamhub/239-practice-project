@@ -1,6 +1,6 @@
 import { ContactData } from './contactData.js';
 import { partition } from './helpers.js';
-import { tagBp, contactBp, contactRowBp } from '../blueprints/bundle.js';
+import { tagBp, contactBp, contactRowBp, alert } from '../blueprints/bundle.js';
 import { tagsUpdated } from './events.js';
 
 export let domCache;
@@ -139,6 +139,10 @@ export let domCache;
 
         if (taggedContacts) {
           return buildRows(taggedContacts);
+        } else {
+          let noContactAlert = _ui.make(alert, ['No contacts found!']);
+          _ui.state(noContactAlert.firstElementChild, 'danger');
+          return noContactAlert;
         }
       },
       
@@ -194,6 +198,7 @@ export let domCache;
 
       pushTag(tag) {
         if (!includes("tags", tag)) {
+          tag.blueprint = 'tag';
           allTags.push(tag);
           _ui.get({id: 'filterTags'}).dispatchEvent(tagsUpdated);
         }
@@ -210,13 +215,24 @@ export let domCache;
         }
       },
 
-      toggleTag(tagValue) {
-        let tagIdx = activeTags.indexOf(tagValue);
+      toggleTag(tag) {
+        let tagValue = tag.innerText,
+            tagIdx = activeTags.indexOf(tagValue);
 
         if (tagIdx === -1) {
           activeTags.push(tagValue);
+          _ui.get({class: 'badge'}).forEach(uniqTag => {
+            if (activeTags.includes(uniqTag.innerText)) {
+              _ui.state(uniqTag, 'active');
+            }
+          });
         } else {
           activeTags.splice(tagIdx, 1);
+          _ui.get({class: 'badge'}).forEach(uniqTag => {
+            if (!activeTags.includes(uniqTag.innerText)) {
+              _ui.state(uniqTag, 'default');
+            }
+          });
         }
       },
 

@@ -10,11 +10,19 @@ export const logger = function logger(event) {
 
 // TAGS
 export const updateTagsDOM = function updateTagsDOMCallback(event) {
-  console.log(event);
   event.target.replaceChildren(event.detail.tags());
 };
 
+export const toggleTag = function toggleTagCallback(event) {
+  domCache.toggleTag(event.target);
+  _ui.get({id: 'cardContainer'}).replaceChildren(domCache.activeContacts());
+}
+
 // CONTACT HANDLING
+export const filterContacts = function filterContactsCallback(event) {
+  _ui.get({id: 'cardContainer'}).replaceChildren(domCache.filterRows(event.target.value));
+};
+
 export const loadContacts = function loadAllContacts(event) {
   if (api.method() === "get") {
     let allContacts = event.target.response;
