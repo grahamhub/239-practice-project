@@ -1,7 +1,7 @@
 import { contactAPI as api } from "./contactAPI.js";
 import { ContactData } from './contactData.js';
 import { domCache } from './domCache.js';
-import { contactAdded, contactDeleted, contactsLoaded, contactUpdated } from './events.js';
+import { contactsLoaded } from './events.js';
 import { contactRowBp } from '../blueprints/contactRow.js';
 
 export const logger = function logger(event) {
@@ -52,36 +52,6 @@ export const delContactsDOM = function delContactsDOMCallback(event) {
   close(null, "delContactModal");
 }
 
-const updateContact = function updateContactCallback(event) {
-  let contact = event.target.response;
-
-  contactUpdated.detail.contact = contact;
-
-  document.dispatchEvent(contactUpdated);
-};
-
-const addContact = function addContactCallback(event) {
-  let contact = event.target.response;
-
-  contactAdded.detail.contact = contact;
-
-  document.dispatchEvent(contactAdded);
-};
-
-const delContact = function delContactCallback(event) {
-  let status = event.target.status,
-      contactId = event.target.responseURL.split('/').pop();
-
-  if (status === 204) {
-    contactDeleted.detail.success = true;
-    contactDeleted.detail.contact = domCache.removeContact(contactId);
-  } else {
-    contactDeleted.detail.success = false;
-  }
-
-  document.dispatchEvent(contactDeleted);
-};
-
 export const onSubmit = function onSubmittingForm(event) {
   event.preventDefault();
 
@@ -91,11 +61,11 @@ export const onSubmit = function onSubmittingForm(event) {
       contactFormData = form ? new FormData(form) : null;
 
   if (formId.includes("edit")) {
-    api.editContact(contactId, contactFormData, updateContact);
+    api.editContact(contactId, contactFormData);
   } else if (formId.includes("add")) {
-    api.addContact(contactFormData, addContact);
+    api.addContact(contactFormData);
   } else {
-    api.delContact(contactId, delContact);
+    api.delContact(contactId);
   }
 };
 

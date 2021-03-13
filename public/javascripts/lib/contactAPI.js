@@ -1,3 +1,6 @@
+import { contactAdded, contactUpdated, contactDeleted } from "./events.js";
+import { domCache } from './domCache.js';
+
 export let contactAPI;
 
 (function() {
@@ -57,8 +60,9 @@ export let contactAPI;
 
       let id = params.id,
           contactForm = params.contactForm,
-          url = URI,
-          activeCallback = params.callback;
+          url = URI;
+
+      activeCallback = params.callback;
       
       if (id) url += `/${id}`;
       
@@ -94,15 +98,39 @@ export let contactAPI;
         request('GET', {id, callback});
       },
 
-      addContact(contactForm, callback) {
+      addContact(contactForm) {
+        const callback = function addContactCallback(event) {
+          contactAdded.detail.contact = event.target.response;
+          document.dispatchEvent(contactAdded);
+        };
+
         request('POST', {contactForm, callback});
       },
 
-      editContact(id, contactForm, callback) {
+      editContact(id, contactForm) {
+        const callback = function updateContactCallback(event) {
+          contactUpdated.detail.contact = event.target.response;
+          document.dispatchEvent(contactUpdated);
+        };
+
         request('PUT', {id, contactForm, callback});
       },
 
-      delContact(id, callback) {
+      delContact(id) {
+        const callback = function delContactCallback(event) {
+          let status = event.target.status,
+              contactId = event.target.responseURL.split('/').pop();
+        
+          if (status === 204) {
+            contactDeleted.detail.success = true;
+            contactDeleted.detail.contact = domCache.removeContact(contactId);
+          } else {
+            contactDeleted.detail.success = false;
+          }
+        
+          document.dispatchEvent(contactDeleted);
+        };
+
         request('DELETE', {id, callback});
       },
 
