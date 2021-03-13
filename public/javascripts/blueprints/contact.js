@@ -1,6 +1,35 @@
 export let contactBp;
 
 (function () {
+  let delModalSpan = {
+    tag: 'span',
+    classes: ['openModal', 'openDelModal'],
+    props: {
+      blueprint: 'delModalSpan',
+      innerText: '\xD7'
+    },
+    attr: {
+      "data-modal": "delContactModal"
+    },
+    states: {},
+  };
+
+  let delModalOpen = {
+    tag: 'button',
+    classes: ['close', 'openModal', 'openDelModal'],
+    props: {
+      blueprint: 'delModalOpen',
+    },
+    attr: {
+      "data-modal": "delContactModal",
+    },
+    states: {},
+    children: [
+      delModalSpan
+    ],
+    content: ["value"],
+  };
+
   let contactName = {
     tag: "h5",
     classes: ["card-title"],
@@ -62,6 +91,7 @@ export let contactBp;
     },
     states: {},
     children: [
+      delModalOpen,
       contactName,
       contactEmail,
       contactPhone,

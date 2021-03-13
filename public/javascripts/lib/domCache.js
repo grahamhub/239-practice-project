@@ -138,6 +138,7 @@ export let domCache;
         let contactIdx = indexOf("contacts", null, contactJson.id),
             tags = contactJson.tags === null ? [] : contactJson.tags.split(',');
 
+        console.log(contactJson);
         if (contactIdx !== -1) {
           ContactData.set(contacts[contactIdx], contactJson);
           let tagContainer = contacts[contactIdx].querySelector('.tags');

@@ -1,11 +1,56 @@
-import { contactsLoaded, contactUpdated, contactAdded, contactDeleted } from './events.js';
+import { contactAPI as api } from "./contactAPI.js";
 import { ContactData } from './contactData.js';
 import { domCache } from './domCache.js';
-import { contactAPI as api } from "./contactAPI.js";
+import { contactAdded, contactDeleted, contactsLoaded, contactUpdated } from './events.js';
+import { contactRowBp } from '../blueprints/contactRow.js';
 
 export const logger = function logger(event) {
   console.log(event);
 };
+
+export const getContactsDOM = function getContactsDOMCallback(event) {
+  let contactRows = event.detail.contacts(),
+      tags = event.detail.tags();
+
+  _ui.get({id: 'cardContainer'}).appendChild(contactRows);
+  _ui.get({id: 'filterTags'}).appendChild(tags);
+};
+
+export const updateContactDOM = function updateContactDOMCallback(event) {
+  let contact = event.detail.contact;
+
+  domCache.updateContact(contact);
+
+  close(null, "manageContactModal");
+};
+
+export const addContactDOM = function addContactDOMCallback(event) {
+  let contact = event.detail.contact,
+      contactAmt = domCache.pushContact(contact),
+      contactCard = domCache.allContacts().pop(),
+      container;
+
+  if (contactAmt % 2 === 0) {
+    container = _ui.get({childrenOf: {id: 'cardContainer'}}).pop();
+  } else {
+    container = _ui.make(contactRowBp).firstElementChild;
+    _ui.get({id: 'cardContainer'}).appendChild(container);
+  }
+
+  container.appendChild(contactCard);
+
+  _ui.get({id: 'addContactForm'}).reset();
+
+  close(null, "addContactModal");
+};
+
+export const delContactsDOM = function delContactsDOMCallback(event) {
+  let contact = event.detail.contact;
+  console.log(event);
+  _ui.get({id: 'cardContainer'}).lastElementChild.removeChild(contact);
+  
+  close(null, "delContactModal");
+}
 
 const updateContact = function updateContactCallback(event) {
   let contact = event.target.response;
@@ -26,8 +71,6 @@ const addContact = function addContactCallback(event) {
 const delContact = function delContactCallback(event) {
   let status = event.target.status,
       contactId = event.target.responseURL.split('/').pop();
-
-  console.log(event);
 
   if (status === 204) {
     contactDeleted.detail.success = true;
@@ -52,7 +95,6 @@ export const onSubmit = function onSubmittingForm(event) {
   } else if (formId.includes("add")) {
     api.addContact(contactFormData, addContact);
   } else {
-    console.log(contactId);
     api.delContact(contactId, delContact);
   }
 };
@@ -65,9 +107,22 @@ export const updateForm = function updateManageForm(event) {
     formInputs.forEach((input, idx) => {
       input.value = Object.values(contactInfo)[idx];
     });
-
-    _ui.get({class: "onsubmit"})[1].value = event.target.value;
   }
+};
+
+export const updateDel = function updateDelModal(event) {
+  let contact,
+      formInput = _ui.get({id: 'delContactForm'}).lastElementChild,
+      tag = event.target;
+
+  if (tag.tagName === "SPAN") {
+    contact = tag.parentElement.parentElement;
+  } else {
+    contact = tag.parentElement;
+  }
+
+  _ui.get({id: 'nameSpan'}).innerText = ContactData.name(contact).trim();
+  formInput.value = ContactData.id(contact);
 };
 
 export const loadContacts = function loadAllContacts(event) {

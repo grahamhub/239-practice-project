@@ -7,6 +7,7 @@ export const ContactData = {
       {contactPhone: [contactJson.phone_number]},
       {contactEmail: [contactJson.email]},
       {contactBtn: [contactJson.id]},
+      {delModalOpen: [contactJson.id]},
     ];
   },
 
@@ -21,7 +22,6 @@ export const ContactData = {
   },
 
   set(contactElement, contactJson) {
-    console.log(contactElement);
     contactElement.querySelector('.card-title').innerText = contactJson.full_name;
     contactElement.querySelector('.card-subtitle').innerText = contactJson.email;
     contactElement.querySelector('.card-text').innerText = contactJson.phone_number;

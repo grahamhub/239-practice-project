@@ -21,15 +21,18 @@ export let contactAPI;
 
     let xhRequest = new XMLHttpRequest(),
         currentMethod,
-        statusMessage;
+        statusMessage,
+        activeCallback;
 
-    xhRequest.addEventListener("load", () => {
+    xhRequest.addEventListener("loadend", () => {
       let status = xhRequest.status;
       statusMessage = STATUSES[status];
 
       if (status === 201 || status === 400) {
         statusMessage = statusMessage[currentMethod];
       }
+
+      xhRequest.removeEventListener("load", activeCallback);
     });
 
     xhRequest.addEventListener("error", () => {
@@ -55,14 +58,14 @@ export let contactAPI;
       let id = params.id,
           contactForm = params.contactForm,
           url = URI,
-          callback = params.callback;
+          activeCallback = params.callback;
       
       if (id) url += `/${id}`;
       
       xhRequest.open(method, url);
       xhRequest.responseType = 'json';
 
-      xhRequest.addEventListener("load", callback);
+      xhRequest.addEventListener("load", activeCallback);
 
       if (contactForm) {
         xhRequest.withCredentials = true;
