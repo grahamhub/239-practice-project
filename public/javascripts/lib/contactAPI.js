@@ -15,10 +15,6 @@ export let contactAPI;
       xhRequest.removeEventListener("load", activeCallback);
     });
 
-    xhRequest.addEventListener("error", () => {
-      statusMessage = "An error occurred trying to make your request. Please try again.";
-    });
-
     const encode = function encodeForm(form) {
       let encodedStrings = [];
       
@@ -49,7 +45,6 @@ export let contactAPI;
       xhRequest.addEventListener("load", activeCallback);
 
       if (contactForm) {
-        xhRequest.withCredentials = true;
         xhRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
         xhRequest.send(encode(contactForm));

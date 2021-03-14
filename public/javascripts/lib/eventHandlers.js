@@ -37,6 +37,7 @@ export const updateTagsDOM = function updateTagsDOMCallback(event) {
 export const toggleTag = function toggleTagCallback(event) {
   domCache.toggleTag(event.target);
   _ui.get({id: 'cardContainer'}).replaceChildren(domCache.activeContacts());
+  domCache.activateTags();
 }
 
 // CONTACT HANDLING

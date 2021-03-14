@@ -181,6 +181,11 @@ export let domCache;
         return this;
       },
 
+      // visual bug fix when going from no contacts back to contact rows
+      activateTags() {
+        tagState('active');
+      },
+
       // check for active tags then return doc frag from `buildRows`
       activeContacts() {
         let taggedContacts = getByTags();
@@ -277,7 +282,6 @@ export let domCache;
 
         if (tagIdx === -1) {
           activeTags.push(tagValue);
-          tagState('active');
         } else {
           activeTags.splice(tagIdx, 1);
           tagState('default');
