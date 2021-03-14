@@ -123,7 +123,7 @@ export let contactAPI;
         
           if (status === 204) {
             contactDeleted.detail.success = true;
-            contactDeleted.detail.contact = domCache.removeContact(contactId);
+            contactDeleted.detail.contact = domCache.spliceContact(contactId)[0];
           } else {
             contactDeleted.detail.success = false;
           }

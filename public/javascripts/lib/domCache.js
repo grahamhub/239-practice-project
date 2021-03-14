@@ -11,6 +11,7 @@ export let domCache;
         allTags = [],
         activeTags = [];
 
+    // get contacts by their active tags
     const getByTags = function getByActiveTags() {
       let taggedContacts = contacts.filter(contact => {
         return activeTags.every(tag => ContactData.tags(contact).includes(tag));
@@ -23,42 +24,67 @@ export let domCache;
       }
     };
 
+    // filter a contactArr by name
     const filterByName = function filterContactsByName(name, contactArr) {
       return contactArr.filter(contact => {
         return ContactData.name(contact).toLowerCase().includes(name);
       });
     };
 
+    // return a non-mutable copy of a cache
     const copy = function copyCache(cache) {
       return [...cache];
     };
 
-    const includes = function cacheIncludes(which, elem) {
-      let isIncluded = false;
+    // cache agnostic includes
+    const includes = function cacheIncludes(searchElem) {
+      let isIncluded = false,
+          isTag = searchElem instanceof HTMLSpanElement,
+          isContact = searchElem.full_name,
+          isStr = typeof searchElem === "string";
 
-      if (which === "contacts") {
+      if (isContact) {
         isIncluded = contacts.some(contact => {
-          return elem.id === ContactData.id(contact);
+          return searchElem.id === ContactData.id(contact);
         });
       }
       
-      else if (which === "tags") {
-        isIncluded = allTags.map(tag => tag.innerText).includes(elem.innerText);
+      else if (isTag) {
+        isIncluded = allTags.map(tag => tag.innerText).includes(searchElem.innerText);
+      }
+
+      else if (isStr) {
+        isIncluded = activeTags.includes(searchElem);
       }
 
       return isIncluded;
     };
 
-    const indexOf = function indexOfCache(which, elem, id=null) {
-      if (which === "contacts") {
-        let contactId = id ? id : ContactData.id(elem);
+    // cache agnostic indexOf
+    const indexOf = function indexOfCache(searchElem) {
+      let isTag = searchElem instanceof HTMLSpanElement,
+          isContact = searchElem instanceof HTMLDivElement,
+          isContactJson = searchElem.full_name,
+          isStr = typeof searchElem === "string";
 
-        return contacts.map(ct => ContactData.id(ct)).indexOf(String(contactId));
-      } else {
-        return allTags.map(tag => tag.innerText).indexOf(elem.innerText);
+      if (isContact || isContactJson) {
+        let id = isContact ? ContactData.id(searchElem) : String(searchElem.id);
+
+        return contacts.map(ct => ContactData.id(ct)).indexOf(id);
       }
+      
+      else if (isTag) {
+        return allTags.map(tag => tag.innerText).indexOf(searchElem.innerText);
+      }
+
+      else if (isStr) {
+        return activeContacts.indexOf(searchElem);
+      }
+
+      return -1;
     };
 
+    // build rows containing contact cards
     const buildRows = function buildContactRows(contactArr=contacts) {
       let frag = new DocumentFragment(),
           rows = partition(copy(contactArr), 2);
@@ -74,6 +100,7 @@ export let domCache;
       return frag;
     };
 
+    // append tag spans to contact card
     const setContactTags = function setContactTags(tags, container) {
       let spans = tags.map(tagVal => {
         let tagSpan = _ui.make(tagBp, [tagVal.trim()]).firstElementChild;
@@ -86,6 +113,7 @@ export let domCache;
       container.replaceChildren(...spans);
     };
 
+    // build contact card based on json data
     const buildContact = function buildContactCard(contactJson) {
       let data = ContactData.unmarshal(contactJson),
           contactCard = _ui.make(contactBp, data),
@@ -97,12 +125,15 @@ export let domCache;
       return contactCard.firstElementChild;
     };
 
-    const tagCount = function totalTagCount(tagVal) {
+    // get count of tag / tag values across all contacts
+    const tagCount = function totalTagCount(tag) {
+      tag = typeof tag === "string" ? tag : tag.innerText;
+
       let allContactTags = contacts.flatMap(ct => ContactData.tags(ct)),
           count = 0;
 
       return allContactTags.reduce((totalCount, currentTag) => {
-        if (currentTag === tagVal) {
+        if (currentTag === tag) {
           return totalCount + 1;
         } else {
           return totalCount;
@@ -110,12 +141,11 @@ export let domCache;
       }, count);
     };
 
-
+    // removes any non-existant tags then dispatches `tagsUpdated`
     const updateTags = function updateTagsContainer(thisArg) {
       let removedTags = [];
 
-      allTags.map(tagSpan => tagSpan.innerText)
-             .map(tagText => tagCount(tagText))
+      allTags.map(tag => tagCount(tag))
              .forEach((count, idx) => {
                console.log(count, idx, allTags[idx]);
                 if (count === 0) {
@@ -124,9 +154,35 @@ export let domCache;
              });
 
       if (removedTags.length) {
-        removedTags.forEach(tag => thisArg.removeTag(tag));
+        removedTags.forEach(tag => thisArg.spliceTag(tag));
         _ui.get({id: 'filterTags'}).dispatchEvent(tagsUpdated);
       }
+    };
+
+    // update element state based on `activeTags`
+    const tagState = function setTagState(state) {
+      let condition;
+
+      if (state === 'active') {
+        condition = (tag) => includes(tag.innerText);
+      } else {
+        condition = (tag) => !includes(tag.innerText);
+      }
+
+      _ui.get({class: 'badge'}).forEach(uniqTag => {
+        if (condition(uniqTag)) {
+          _ui.state(uniqTag, state);
+        }
+      });
+    };
+
+    // return doc frag containing a danger styled alert with passed in message
+    const makeAlert = function makeNoContactsAlert(message) {
+      let noContactFrag = _ui.make(alert, [message]);
+
+      _ui.state(noContactFrag.firstElementChild, 'danger');
+
+      return noContactFrag;
     };
 
     return {
@@ -134,26 +190,28 @@ export let domCache;
         return this;
       },
 
+      // check for active tags then return doc frag from `buildRows`
       activeContacts() {
         let taggedContacts = getByTags();
 
         if (taggedContacts) {
           return buildRows(taggedContacts);
         } else {
-          let noContactAlert = _ui.make(alert, ['No contacts found!']);
-          _ui.state(noContactAlert.firstElementChild, 'danger');
-          return noContactAlert;
+          return makeAlert('No contacts found.');
         }
       },
       
+      // return a non-mutable copy of `contacts`
       allContacts() {
         return copy(contacts);
       },
 
+      // return doc frag from `buildRows` with default parameter
       contactRows() {
         return buildRows();
       },
       
+      // return a doc frag containing all existing tag spans
       tags() {
         let frag = new DocumentFragment();
 
@@ -162,20 +220,20 @@ export let domCache;
         return frag;
       },
 
+      // if contact doesn't exist in `contacts`, add it, then return length of `contacts`
       pushContact(contactJson) {
-        if (!includes("contacts", contactJson)) {
-          let contact = buildContact(contactJson);
-          contacts.push(contact);
+        if (!includes(contactJson)) {
+          contacts.push(buildContact(contactJson));
         }
 
         return contacts.length;
       },
 
+      // update a contact with provided json data (will overwrite all fields with new vals)
       updateContact(contactJson) {
-        let contactIdx = indexOf("contacts", null, contactJson.id),
+        let contactIdx = indexOf(contactJson),
             tags = contactJson.tags === null ? [] : contactJson.tags.split(',');
 
-        console.log(contactJson);
         if (contactIdx !== -1) {
           ContactData.set(contacts[contactIdx], contactJson);
           let tagContainer = contacts[contactIdx].querySelector('.tags');
@@ -186,18 +244,22 @@ export let domCache;
         }
       },
 
-      removeContact(contactId) {
-        let contactIdx = indexOf("contacts", null, contactId);
+      // if contact exists, splice it, returning array containing spliced contact or empty if not found
+      spliceContact(contactId) {
+        let contactIdx = indexOf({full_name: "fake_contact_json", id: contactId});
 
         if (contactIdx !== -1) {
-          let spliced = contacts.splice(contactIdx, 1)[0];
+          let spliced = contacts.splice(contactIdx, 1);
           updateTags(this);
           return spliced;
         }
+
+        return [];
       },
 
+      // if tag doesn't exist in `allTags`, add it then return length
       pushTag(tag) {
-        if (!includes("tags", tag)) {
+        if (!includes(tag)) {
           tag.blueprint = 'tag';
           allTags.push(tag);
           _ui.get({id: 'filterTags'}).dispatchEvent(tagsUpdated);
@@ -206,36 +268,32 @@ export let domCache;
         return allTags.length;
       },
 
-      removeTag(tag) {
-        console.log(tag);
-        let tagIdx = indexOf("tags", tag);
+      // if tag exists, splice it, returning array containing spliced tag or empty if not found
+      spliceTag(tag) {
+        let tagIdx = indexOf(tag);
 
         if (tagIdx !== -1) {
           return allTags.splice(tagIdx, 1);
         }
+
+        return [];
       },
 
+      // toggle active tag state for filtering
       toggleTag(tag) {
         let tagValue = tag.innerText,
             tagIdx = activeTags.indexOf(tagValue);
 
         if (tagIdx === -1) {
           activeTags.push(tagValue);
-          _ui.get({class: 'badge'}).forEach(uniqTag => {
-            if (activeTags.includes(uniqTag.innerText)) {
-              _ui.state(uniqTag, 'active');
-            }
-          });
+          tagState('active');
         } else {
           activeTags.splice(tagIdx, 1);
-          _ui.get({class: 'badge'}).forEach(uniqTag => {
-            if (!activeTags.includes(uniqTag.innerText)) {
-              _ui.state(uniqTag, 'default');
-            }
-          });
+          tagState('default');
         }
       },
 
+      // filter rows by name, returning doc frag from `buildRows`
       filterRows(name) {
         let taggedContacts = getByTags(),
             filterContacts;
