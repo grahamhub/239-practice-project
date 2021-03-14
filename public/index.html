@@ -118,7 +118,10 @@
             </div>
             <div class="form-group">
               <label>Add tags:</label>
-              <textarea class="form-control mgContact" name="tags" aria-describedby="mgTagHelp" rows="3"></textarea>
+              <input class="mgContact" type="hidden" name="tags" value="">
+              <div class="tag-holder form-control" aria-describedby="mgTagHelp">
+                <div class="tag-entry" contenteditable="true" type="text"></div>
+              </div>
               <small id="mgTagHelp" class="form-text text-muted">Type a word in the box above to add a tag (pressing the space, comma, or enter keys will confirm the tag).</small>
             </div>
           </form>

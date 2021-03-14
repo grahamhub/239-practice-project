@@ -17,4 +17,5 @@ _ui.loaded(() => {
   _ui.get({id: 'alertBox'}).addEventListener("alerted", eventHandlers.showAlert);
   _ui.click({class: 'badge'}, eventHandlers.toggleTag);
   _ui.get({id: 'searchBar'}).oninput = eventHandlers.filterContacts;
+  _ui.keydown({query: 'div.tag-entry'}, eventHandlers.tagHandler);
 });

@@ -2,7 +2,7 @@ import { contactAPI as api } from "./contactAPI.js";
 import { ContactData } from './contactData.js';
 import { domCache } from './domCache.js';
 import { contactsLoaded, alerted } from './events.js';
-import { contactRowBp } from '../blueprints/contactRow.js';
+import { contactRowBp, tagBp } from '../blueprints/bundle.js';
 import { makeAlert } from './helpers.js';
 
 export const logger = function logger(event) {
@@ -35,10 +35,38 @@ export const updateTagsDOM = function updateTagsDOMCallback(event) {
 };
 
 export const toggleTag = function toggleTagCallback(event) {
-  domCache.toggleTag(event.target);
-  _ui.get({id: 'cardContainer'}).replaceChildren(domCache.activeContacts());
-  domCache.activateTags();
-}
+  if (!event.target.classList.contains('inputTag')) {
+    domCache.toggleTag(event.target);
+    _ui.get({id: 'cardContainer'}).replaceChildren(domCache.activeContacts());
+    domCache.activateTags();
+  }
+};
+
+export const tagHandler = function handleTagTextarea(event) {
+  let parent = event.target.parentElement,
+      tagInput = parent.previousElementSibling;
+      
+
+  console.log(event);
+  if ([" ", ",", "Enter"].includes(event.key)) {
+    event.preventDefault();
+    
+    let tagVal = tagInput.value.split(",").pop();
+    
+    let tagSpan = _ui.make(tagBp, [tagVal]).firstElementChild;
+
+    tagSpan.classList.add("inputTag");
+
+    parent.insertBefore(tagSpan, event.target);
+    event.target.replaceChildren();
+
+    tagInput.value += ",";
+  } else {
+    if (/[a-zA-Z0-9]{1}/.test(event.key)) {
+      tagInput.value += event.key;
+    }
+  }
+};
 
 // CONTACT HANDLING
 export const filterContacts = function filterContactsCallback(event) {

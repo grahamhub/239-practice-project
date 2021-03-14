@@ -3,6 +3,18 @@
   background-color: #0275D8;
 }
 
+.tag-holder:hover {
+  cursor: text;
+}
+
+.tag-entry {
+  display: inline-block;
+}
+
+.tag-entry:focus {
+  outline: none;
+}
+
 @-webkit-keyframes fadeOut {
   0% {opacity: 1;}
   100% {opacity: 0;}
