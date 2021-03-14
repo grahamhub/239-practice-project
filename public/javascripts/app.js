@@ -14,6 +14,7 @@ _ui.loaded(() => {
   _ui.click({class: "closeModal"}, eventHandlers.close);
   _ui.click({class: "onsubmit"}, eventHandlers.onSubmit);
   _ui.get({id: 'filterTags'}).addEventListener("tagsUpdated", eventHandlers.updateTagsDOM);
+  _ui.get({id: 'alertBox'}).addEventListener("alerted", eventHandlers.showAlert);
   _ui.click({class: 'badge'}, eventHandlers.toggleTag);
   _ui.get({id: 'searchBar'}).oninput = eventHandlers.filterContacts;
 });

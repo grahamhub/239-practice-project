@@ -1,11 +1,32 @@
 import { contactAPI as api } from "./contactAPI.js";
 import { ContactData } from './contactData.js';
 import { domCache } from './domCache.js';
-import { contactsLoaded } from './events.js';
+import { contactsLoaded, alerted } from './events.js';
 import { contactRowBp } from '../blueprints/contactRow.js';
+import { makeAlert } from './helpers.js';
 
 export const logger = function logger(event) {
   console.log(event);
+};
+
+// ALERTS
+export const showAlert = function showMainAlert(event) {
+  let style = event.detail.style,
+      message = event.detail.message,
+      alert = makeAlert(style, message).firstElementChild;
+
+  _ui.get({id: 'alertBox'}).replaceChildren(alert);
+
+  setTimeout(() => {
+    _ui.state(alert, 'fadeOut');
+    removeAlert();
+  }, 3000);
+};
+
+const removeAlert = function removeAlert() {
+  setTimeout(() => {
+    _ui.get({id: 'alertBox'}).replaceChildren();
+  }, 1000);
 };
 
 // TAGS
@@ -44,6 +65,10 @@ export const updateContactDOM = function updateContactDOMCallback(event) {
 
   domCache.updateContact(contact);
 
+  alerted.detail.style = 'success';
+  alerted.detail.message = 'Successfully updated contact.';
+  _ui.get({id: 'alertBox'}).dispatchEvent(alerted);
+
   close(null, "manageContactModal");
 };
 
@@ -64,13 +89,20 @@ export const addContactDOM = function addContactDOMCallback(event) {
 
   _ui.get({id: 'addContactForm'}).reset();
 
+  alerted.detail.style = 'success';
+  alerted.detail.message = 'Successfully created contact.';
+  _ui.get({id: 'alertBox'}).dispatchEvent(alerted);
+
   close(null, "addContactModal");
 };
 
 export const delContactsDOM = function delContactsDOMCallback(event) {
   let contact = event.detail.contact;
-  console.log(event);
   _ui.get({id: 'cardContainer'}).lastElementChild.removeChild(contact);
+
+  alerted.detail.style = 'success';
+  alerted.detail.message = 'Successfully deleted contact.'
+  _ui.get({id: 'alertBox'}).dispatchEvent(alerted);
   
   close(null, "delContactModal");
 }

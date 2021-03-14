@@ -31,3 +31,10 @@ export const tagsUpdated = new CustomEvent("tagsUpdated", {
     tags: domCache.tags,
   }
 });
+
+export const alerted = new CustomEvent("alerted", {
+  detail: {
+    style: 'primary',
+    message: 'No new alerts.',
+  }
+});

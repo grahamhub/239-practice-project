@@ -13,5 +13,6 @@ export let alert = {
     danger: ['alert-danger'],
     success: ['alert-success'],
     info: ['alert-info'],
+    fadeOut: ['alert-success', 'fadeOut'],
   },
 };

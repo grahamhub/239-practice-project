@@ -1,7 +1,7 @@
 import { ContactData } from './contactData.js';
-import { partition } from './helpers.js';
-import { tagBp, contactBp, contactRowBp, alert } from '../blueprints/bundle.js';
-import { tagsUpdated } from './events.js';
+import { partition, makeAlert } from './helpers.js';
+import { tagBp, contactBp, contactRowBp } from '../blueprints/bundle.js';
+import { alerted, tagsUpdated } from './events.js';
 
 export let domCache;
 
@@ -176,15 +176,6 @@ export let domCache;
       });
     };
 
-    // return doc frag containing a danger styled alert with passed in message
-    const makeAlert = function makeNoContactsAlert(message) {
-      let noContactFrag = _ui.make(alert, [message]);
-
-      _ui.state(noContactFrag.firstElementChild, 'danger');
-
-      return noContactFrag;
-    };
-
     return {
       init() {
         return this;
@@ -197,7 +188,7 @@ export let domCache;
         if (taggedContacts) {
           return buildRows(taggedContacts);
         } else {
-          return makeAlert('No contacts found.');
+          return makeAlert('danger', 'No contacts found.');
         }
       },
       

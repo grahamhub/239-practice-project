@@ -5,36 +5,13 @@ export let contactAPI;
 
 (function() {
   const ContactAPI = (function() {
-    const URI = 'http://localhost:3000/api/contacts',
-          STATUSES = {
-            200: "OK",
-            201: {
-              post: "Successfully created contact.",
-              put: "Successfully updated contact.",
-            },
-            204: "Successfully deleted contact.",
-            400: {
-              post: "There are errors on this form. Please check your input fields.",
-              put: "There are errors on this form. Please check your input fields.",
-              get: "The requested contact does not exist.",
-              delete: "The requested contact does not exist.",
-            },
-            500: "The server encountered an error. Please try again.",
-          };
+    const URI = 'http://localhost:3000/api/contacts';
 
     let xhRequest = new XMLHttpRequest(),
         currentMethod,
-        statusMessage,
         activeCallback;
 
     xhRequest.addEventListener("loadend", () => {
-      let status = xhRequest.status;
-      statusMessage = STATUSES[status];
-
-      if (status === 201 || status === 400) {
-        statusMessage = statusMessage[currentMethod];
-      }
-
       xhRequest.removeEventListener("load", activeCallback);
     });
 
@@ -82,10 +59,6 @@ export let contactAPI;
     };
 
     return {
-      message() {
-        return statusMessage;
-      },
-
       method() {
         return currentMethod;
       },
