@@ -3,6 +3,10 @@
   background-color: #0275D8;
 }
 
+.inputTag:hover {
+  background-color: #D9534F;
+}
+
 .tag-holder:hover {
   cursor: text;
 }
