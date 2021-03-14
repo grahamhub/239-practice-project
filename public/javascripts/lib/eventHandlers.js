@@ -62,8 +62,12 @@ export const tagHandler = function handleTagTextarea(event) {
 
     tagInput.value += ",";
   } else {
-    if (/[a-zA-Z0-9]{1}/.test(event.key)) {
+    if (/^\w$/.test(event.key)) {
       tagInput.value += event.key;
+    }
+
+    else if (event.key === "Backspace") {
+      tagInput.value = tagInput.value.slice(0, tagInput.value.length - 1);
     }
   }
 };

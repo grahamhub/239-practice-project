@@ -18,4 +18,5 @@ _ui.loaded(() => {
   _ui.click({class: 'badge'}, eventHandlers.toggleTag);
   _ui.get({id: 'searchBar'}).oninput = eventHandlers.filterContacts;
   _ui.keydown({query: 'div.tag-entry'}, eventHandlers.tagHandler);
+  _ui.click({class: 'tag-holder'}, () => _ui.get({class: 'tag-entry'})[0].focus());
 });
