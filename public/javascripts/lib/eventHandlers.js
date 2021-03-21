@@ -181,6 +181,8 @@ export const updateForm = function updateManageForm(event) {
     formInputs.forEach((input, idx) => {
       input.value = Object.values(contactInfo)[idx];
     });
+
+    showTags(contactInfo.tags.split(','), _ui.get({query: '#editContactForm .tag-holder'})[0]);
   }
 };
 
@@ -203,4 +205,24 @@ export const close = function closeModal(event, modalId=null) {
   backdrop.style.display = "none";
   modal.style.display = "none";
   modal.classList.remove("show");
+  clearTags(modal);
 };
+
+const showTags = function showTagSpans(tags, container) {
+  tags.forEach(tagVal => {
+    let tagSpan = _ui.make(tagBp, [tagVal]).firstElementChild;
+
+    container.insertBefore(tagSpan, _ui.get({query: '#editContactForm .tag-entry'})[0]);
+  });
+}
+
+const clearTags = function clearTagSpans(modal) {
+  let tagEntry = modal.querySelector('.tag-entry'),
+      tagHolder = modal.querySelector('.tag-holder');
+
+  while (tagEntry.previousElementSibling) {
+    tagHolder.removeChild(tagEntry.previousElementSibling);
+  }
+
+  tagEntry.innerText = '';
+}

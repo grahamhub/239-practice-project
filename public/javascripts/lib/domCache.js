@@ -147,7 +147,6 @@ export let domCache;
 
       allTags.map(tag => tagCount(tag))
              .forEach((count, idx) => {
-               console.log(count, idx, allTags[idx]);
                 if (count === 0) {
                   removedTags.push(allTags[idx]);
                 }

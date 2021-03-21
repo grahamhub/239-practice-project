@@ -11,10 +11,12 @@ export let contactAPI;
         currentMethod,
         activeCallback;
 
+    // remove activeCallback to prevent redundant actions
     xhRequest.addEventListener("loadend", () => {
       xhRequest.removeEventListener("load", activeCallback);
     });
 
+    // encode form into uri components
     const encode = function encodeForm(form) {
       let encodedStrings = [];
       
@@ -28,6 +30,7 @@ export let contactAPI;
       return encodedStrings.join("&");
     };
 
+    // send request based on method and parameters
     const request = function requestWithParams(method, params) {
       currentMethod = method.toLowerCase();
 
