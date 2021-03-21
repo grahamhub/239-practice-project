@@ -176,13 +176,15 @@ export const updateDel = function updateDelModal(event) {
 export const updateForm = function updateManageForm(event) {
   if (event.target.value) {
     let formInputs = _ui.get({class: "mgContact"}),
-        contactInfo = ContactData.marshal(event.target.parentElement);
+        contactInfo = ContactData.marshal(event.target.parentElement),
+        tagHolder = _ui.get({query: '#editContactForm .tag-holder'})[0];
 
     formInputs.forEach((input, idx) => {
       input.value = Object.values(contactInfo)[idx];
     });
 
-    showTags(contactInfo.tags.split(','), _ui.get({query: '#editContactForm .tag-holder'})[0]);
+    tagHolder.previousElementSibling.value += ',';
+    showTags(contactInfo.tags.split(','), tagHolder);
   }
 };
 
